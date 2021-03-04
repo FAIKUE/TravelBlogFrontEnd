@@ -1,0 +1,16 @@
+<div *ngIf="blog" class="container mt-5">
+    <h2 class="text-center">{{blog.title}}</h2>
+    <h3>{{blog.destination}}</h3>
+    <p>{{blog.shortDescription}}</p>
+    <div *ngFor="let entry of blog.entries">
+        <h4>{{entry.datetime | date:'dd.MM.yyyy h:mm'}} {{entry.title}}</h4>
+        <div *ngFor="let image of entry.images" class="my-5">
+            <img src="{{image.url}}"/>
+            <p>{{image.description}}</p>
+        </div>
+        <p>{{entry.text}}</p>
+    </div>
+</div>
+<div *ngIf="loading" class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+</div>

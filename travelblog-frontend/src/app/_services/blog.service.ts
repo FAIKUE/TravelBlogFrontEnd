@@ -11,4 +11,8 @@ export class BlogService {
     getAll() {
         return this.http.get<Blog[]>(`${environment.apiUrl}/blogs`);
     }
+
+    getOne(id: string) {
+        return this.http.get<Blog>(`${environment.apiUrl}/blogs/${id}`);
+    }
 }
