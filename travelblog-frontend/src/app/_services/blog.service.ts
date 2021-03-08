@@ -15,4 +15,12 @@ export class BlogService {
     getOne(id: string) {
         return this.http.get<Blog>(`${environment.apiUrl}/blogs/${id}`);
     }
+
+    saveOne(blog: Blog) {
+        return this.http.patch<Blog>(`${environment.apiUrl}/blogs/${blog._id}`, blog);
+    }
+
+    createOne(blog: Blog) {
+        return this.http.post<Blog>(`${environment.apiUrl}/blogs/`, blog);
+    }
 }

@@ -1,16 +1,110 @@
-<div *ngIf="blog" class="container mt-5">
-    <h2 class="text-center">{{blog.title}}</h2>
-    <h3>{{blog.destination}}</h3>
-    <p>{{blog.shortDescription}}</p>
-    <div *ngFor="let entry of blog.entries">
-        <h4>{{entry.datetime | date:'dd.MM.yyyy h:mm'}} {{entry.title}}</h4>
-        <div *ngFor="let image of entry.images" class="my-5">
-            <img src="{{image.url}}"/>
-            <p>{{image.description}}</p>
-        </div>
-        <p>{{entry.text}}</p>
+<div class="text-center mt-3" *ngIf="loading">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
     </div>
 </div>
-<div *ngIf="loading" class="spinner-border" role="status">
-    <span class="sr-only">Loading...</span>
-</div>
+
+<ng-template [ngIf]="blog">
+    <div *ngIf="!editing; else editingBlock" class="container mt-3">
+        <button *ngIf="currentUser" type="button" class="btn btn-secondary btn-lg float-right" (click)="edit()">Edit</button>
+        <h2 class="text-center">{{blog.title}}</h2>
+        <h3>{{blog.destination}}, {{blog.traveltime}} days</h3>
+        <p>{{blog.shortDescription}}</p>
+        <div *ngFor="let entry of blog.entries">
+            <h4>{{entry.datetime | date:'d.M.yyyy h:mm'}} - {{entry.title}}</h4>
+            <div *ngFor="let image of entry.images" class="my-5">
+                <img src="{{image.url}}"/>
+                <p>{{image.description}}</p>
+            </div>
+            <p>{{entry.text}}</p>
+        </div>
+    </div>
+
+    <ng-template #editingBlock>
+        <div class="container mt-3">
+            <form [formGroup]="blogFormGroup">
+                <div class="text-right">
+                    <button type="button" class="btn btn-secondary btn-lg" (click)="cancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-lg ml-3" (click)="save()">Save</button>
+                </div>
+                
+                <div class="col-6 mx-auto">
+                    <div class="form-group">
+                        <label for="blogTitle">Blog title</label>
+                        <input type="text" class="text-center form-control form-control-h2" formControlName="title" id="blogTitle">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="destination">Destination</label>
+                            <input type="text" class="form-control form-control-h3" formControlName="destination" id="destination">
+                        </div>
+                    </div>
+                    <div class="col-4 pl-0">
+                        <div class="form-group">
+                            <label for="traveltime">Travel duration in days</label>
+                            <input type="number" class="form-control form-control-h3" formControlName="traveltime" id="traveltime">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="shortDescription">Short description</label>
+                    <textarea rows="3" class="d-block form-control" formControlName="shortDescription" id="shortDescription"></textarea>
+                </div>
+                
+                <h3>Entries <button type="button" class="btn btn-secondary btn-sm" (click)="addEntry()">Add</button></h3>
+                
+                <div formArrayName="entries" *ngFor="let entry of blogFormGroup.controls.entries.controls; let i = index;">
+                    <div class="card p-3 mb-3">
+                        <div [formGroupName]="i">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="title">Blog entry date</label>
+                                        <input type="datetime" class="form-control form-control-h3" formControlName="datetime" id="title">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="title">Blog entry title</label>
+                                        <input type="text" class="form-control form-control-h3" formControlName="title" id="title">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4>Images <button type="button" class="btn btn-secondary btn-sm" (click)="addImage(i)">Add</button></h4>
+                            <div formArrayName="images" *ngFor="let image of entry.controls.images.controls; let imageIndex = index;">
+                                <div class="card p-3 mb-3">
+                                    <div [formGroupName]="imageIndex">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="form-group">
+                                                    <label for="url">Image URL</label>
+                                                    <input type="text" class="form-control" formControlName="url" id="url">
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="form-group">
+                                                    <label for="description">Image description</label>
+                                                    <input type="text" class="form-control" formControlName="description" id="description">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="text">Blog entry text</label>
+                                <textarea rows="5" type="text" class="form-control" formControlName="text" id="text"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </ng-template>
+</ng-template>
