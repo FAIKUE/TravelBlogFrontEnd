@@ -6,7 +6,8 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <a class="nav-item nav-link" routerLink="/">Home</a>
-      <a class="nav-item nav-link" href="#" (click)="logout()">Logout</a>
+      <a *ngIf="currentUser; else elseBlock" class="nav-item nav-link" href="#" (click)="logout()">Logout</a>
+      <ng-template #elseBlock><a class="nav-item nav-link" href="/login">Login</a></ng-template>
     </ul>
   </div>
 </nav>
