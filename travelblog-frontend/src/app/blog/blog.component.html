@@ -7,16 +7,25 @@
 <ng-template [ngIf]="blog">
     <div *ngIf="!editing; else editingBlock" class="container mt-3">
         <button *ngIf="currentUser" type="button" class="btn btn-secondary btn-lg float-right" (click)="edit()">Edit</button>
-        <h2 class="text-center">{{blog.title}}</h2>
-        <h3>{{blog.destination}}, {{blog.traveltime}} days</h3>
-        <p>{{blog.shortDescription}}</p>
-        <div *ngFor="let entry of blog.entries">
-            <h4>{{entry.datetime | date:'d.M.yyyy h:mm'}} - {{entry.title}}</h4>
-            <div *ngFor="let image of entry.images" class="my-5">
-                <img src="{{image.url}}"/>
-                <p>{{image.description}}</p>
+        <h1 class="text-center">{{blog.title}}</h1>
+        <h2 class="float-left mt-4">{{blog.destination}}</h2>
+        <div *ngIf="blog.entries && blog.entries.length > 0; else noEntriesBlock">
+            <h2 class="float-right mt-4">{{blog.entries[0].datetime | date: 'd.M.yyyy' }} - {{blog.entries[blog.entries.length - 1].datetime | date: 'd.M.yyyy' }}</h2>
+        </div>
+        <ng-template #noEntriesBlock>
+            <h2 class="float-right mt-4">{{blog.traveltime}} day{{blog.traveltime > 1 ? "s" : ""}}</h2>
+        </ng-template>
+        <div class="clearfix"></div>
+        <p class="my-3">{{blog.shortDescription}}</p>
+        <div *ngIf="blog.entries">
+            <div *ngFor="let entry of blog.entries">
+                <h4>{{entry.datetime | date: 'd.M.yyyy h:mm'}} <span class="font-weight-bold ml-3">{{entry.title}}</span></h4>
+                <div *ngFor="let image of entry.images" class="my-2 mr-3 d-inline-block">
+                    <img src="{{image.url}}" width="300"/>
+                    <p>{{image.description}}</p>
+                </div>
+                <p>{{entry.text}}</p>
             </div>
-            <p>{{entry.text}}</p>
         </div>
     </div>
 
@@ -28,7 +37,7 @@
                     <button type="button" class="btn btn-primary btn-lg ml-3" (click)="save()">Save</button>
                 </div>
                 
-                <div class="col-6 mx-auto">
+                <div class="col-8 mx-auto">
                     <div class="form-group">
                         <label for="blogTitle">Blog title</label>
                         <input type="text" class="text-center form-control form-control-h2" formControlName="title" id="blogTitle">
@@ -55,56 +64,87 @@
                 
                 <h3>Entries <button type="button" class="btn btn-secondary btn-sm" (click)="addEntry()">Add</button></h3>
                 
-                <div formArrayName="entries" *ngFor="let entry of blogFormGroup.controls.entries.controls; let i = index;">
-                    <div class="card p-3 mb-3">
-                        <div [formGroupName]="i">
-                            <div class="row">
-                                <div class="col-4">
-                                    <div class="form-group">
-                                        <label for="title">Blog entry date</label>
-                                        <input type="datetime" class="form-control form-control-h3" formControlName="datetime" id="title">
+                <div *ngIf="entries()">
+                    <div formArrayName="entries" *ngFor="let entry of blogFormGroup.controls.entries.controls; let i = index;">
+                        <div class="card p-3 mb-3">
+                            <div [formGroupName]="i">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="title">Blog entry date</label>
+                                            <input type="datetime" class="form-control form-control-h3" formControlName="datetime" id="title">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="title">Blog entry title</label>
+                                            <input type="text" class="form-control form-control-h3" formControlName="title" id="title">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="form-group">
-                                        <label for="title">Blog entry title</label>
-                                        <input type="text" class="form-control form-control-h3" formControlName="title" id="title">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <h4>Images <button type="button" class="btn btn-secondary btn-sm" (click)="addImage(i)">Add</button></h4>
-                            <div formArrayName="images" *ngFor="let image of entry.controls.images.controls; let imageIndex = index;">
-                                <div class="card p-3 mb-3">
-                                    <div [formGroupName]="imageIndex">
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <div class="form-group">
-                                                    <label for="url">Image URL</label>
-                                                    <input type="text" class="form-control" formControlName="url" id="url">
+                                
+                                <h4>Images <button type="button" class="btn btn-secondary btn-sm" (click)="addImage(i)">Add</button></h4>
+                                <div *ngIf="images(i)">
+                                    <div formArrayName="images" *ngFor="let image of entry.controls.images.controls; let imageIndex = index;">
+                                        <div class="card p-3 mb-3">
+                                            <div [formGroupName]="imageIndex">
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        <div class="form-group">
+                                                            <label for="url">Image URL</label>
+                                                            <input type="text" class="form-control" formControlName="url" id="url">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <div class="form-group">
+                                                            <label for="description">Image description</label>
+                                                            <input type="text" class="form-control" formControlName="description" id="description">
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-8">
-                                                <div class="form-group">
-                                                    <label for="description">Image description</label>
-                                                    <input type="text" class="form-control" formControlName="description" id="description">
+                                                <div class="text-right">
+                                                    <Button class="btn btn-danger btn-sm" (click)="removeImage(i, imageIndex)">Delete Image</Button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="form-group">
+                                    <label for="text">Blog entry text</label>
+                                    <textarea rows="5" type="text" class="form-control" formControlName="text" id="text"></textarea>
+                                </div>
+
                             </div>
-
-
-                            <div class="form-group">
-                                <label for="text">Blog entry text</label>
-                                <textarea rows="5" type="text" class="form-control" formControlName="text" id="text"></textarea>
+                            <div class="text-right">
+                                <Button class="btn btn-danger btn-sm" (click)="removeEntry(i)">Delete Entry</Button>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </form>
+            <div class="text-right mb-3">
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete Blog</button>
+            </div>
+            <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Delete Blog</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Are you sure you want to delete the entire blog "{{blog.title}}"?</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="delete()">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
         </div>
     </ng-template>
 </ng-template>

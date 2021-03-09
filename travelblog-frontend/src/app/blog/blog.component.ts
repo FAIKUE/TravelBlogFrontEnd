@@ -83,7 +83,9 @@ export class BlogComponent implements OnInit {
         this.blogService.getOne(this.id).pipe(first()).subscribe(blog => {
             this.loading = false;
             this.blog = blog;
-            blog.entries = blog.entries.sort((a, b) => Date.parse(a.datetime.toString()) - Date.parse(b.datetime.toString()));
+            if (blog && blog.entries) {
+              blog.entries = blog.entries.sort((a, b) => Date.parse(a.datetime.toString()) - Date.parse(b.datetime.toString()));
+            }
         });
       }
     });
@@ -97,7 +99,7 @@ export class BlogComponent implements OnInit {
   private retrieveData(): void {
     this.entries().clear();
     this.blogService.getOne(this.route.snapshot.params['id']).subscribe((res: Blog) => {
-      if (res.entries) {
+      if (res && res.entries) {
         res.entries.forEach(e => {
           let entry: FormGroup = this.newEntry();
           this.entries().push(entry);
@@ -208,5 +210,30 @@ export class BlogComponent implements OnInit {
       queryParamsHandling: 'merge',
       skipLocationChange: true
     });
+  }
+
+  delete() {
+    if (this.blog) {
+      this.blogService.deleteOne(this.blog._id).subscribe({ 
+        next: (res) => {
+          this.retrieveData();
+          this.ngOnInit();
+          this.router.navigate(['/'], {
+            relativeTo: this.route
+          });
+        },
+        error: res => {
+          console.error(`Error while deleting blog: ${res}`);
+        }
+      });
+    }
+  }
+
+  removeImage(entryIndex: number, imageIndex: number) {
+    this.images(entryIndex).removeAt(imageIndex);
+  }
+
+  removeEntry(entryIndex: number) {
+    this.entries().removeAt(entryIndex);
   }
 }

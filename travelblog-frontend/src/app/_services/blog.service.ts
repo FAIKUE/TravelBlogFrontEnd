@@ -23,4 +23,8 @@ export class BlogService {
     createOne(blog: Blog) {
         return this.http.post<Blog>(`${environment.apiUrl}/blogs/`, blog);
     }
+
+    deleteOne(id: string) {
+        return this.http.delete<Blog>(`${environment.apiUrl}/blogs/${id}`);
+    }
 }
